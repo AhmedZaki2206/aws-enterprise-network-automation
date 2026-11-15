@@ -19,14 +19,20 @@ Environment: local Windows workspace, Python 3.13.9
 - Native test runs failed: **0**
 - AWS provider behavior was mocked; no credentials or deployed resources were required.
 
+`checkov -d . --framework terraform --compact` using Checkov 3.4.5
+
+- Result: **PASS**
+- Passed checks: **20**
+- Failed checks: **0**
+- Skipped checks: **3**, each resource-scoped and documented in `docs/SECURITY_EXCEPTIONS.md`
+
 ## Not executed locally
 
-The following tools were not installed in the local environment, so no local pass result is claimed:
+The following tool was not installed in the local environment, so no local pass result is claimed:
 
 - TFLint
-- Checkov
 
-TFLint and Checkov are configured in `.github/workflows/terraform-ci.yml`. Their status remains pending until the updated workflow completes. GitHub Actions has already completed Terraform formatting, initialization, and validation successfully for the pull request.
+TFLint is configured in `.github/workflows/terraform-ci.yml` and has completed successfully for the pull request. The updated full GitHub Actions result remains pending.
 
 No AWS credentials were used, no plan was applied, and no AWS resources were created.
 

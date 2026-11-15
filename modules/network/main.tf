@@ -1,5 +1,11 @@
 data "aws_availability_zones" "available" {
+  # checkov:skip=CKV_AWS_394:The portfolio requirement selects two AZs dynamically; an identity allowlist would make the reusable module region-specific.
   state = "available"
+
+  filter {
+    name   = "opt-in-status"
+    values = ["opt-in-not-required"]
+  }
 }
 
 locals {
@@ -8,11 +14,20 @@ locals {
 }
 
 resource "aws_vpc" "this" {
+  # checkov:skip=CKV2_AWS_11:Flow Logs are a documented, billable future module and are intentionally not deployed in the no-cost v1 baseline.
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
 
   tags = merge(var.tags, { Name = "${local.name_prefix}-vpc" })
+}
+
+# Explicitly remove all rules from the VPC default security group. Workloads
+# must use purpose-built security groups such as aws_security_group.application.
+resource "aws_default_security_group" "this" {
+  vpc_id = aws_vpc.this.id
+
+  tags = merge(var.tags, { Name = "${local.name_prefix}-default-deny-sg" })
 }
 
 resource "aws_internet_gateway" "this" {
@@ -89,6 +104,7 @@ resource "aws_route_table_association" "private" {
 # Example application-tier SG. It allows HTTPS only from inside the VPC and
 # intentionally contains no SSH, RDP, or Internet-sourced ingress rule.
 resource "aws_security_group" "application" {
+  # checkov:skip=CKV2_AWS_5:This is a reusable example policy; v1 intentionally deploys no paid compute resource to attach it to.
   name        = "${local.name_prefix}-application-sg"
   description = "Private application tier: HTTPS from within the VPC only"
   vpc_id      = aws_vpc.this.id

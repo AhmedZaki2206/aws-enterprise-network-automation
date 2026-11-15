@@ -49,7 +49,7 @@ The module dynamically selects the first two available Availability Zones unless
 | Subnet | 4 | Public/private tiers across two AZs | No |
 | Internet Gateway | 1 | Public IPv4 routing target | No hourly charge |
 | Route table | 3 | One public and two isolated private tables | No |
-| Security group | 1 | Private HTTPS-only example policy | No |
+| Security groups | 2 | Default-deny VPC group and private HTTPS-only example policy | No |
 | NAT Gateway, VPN, compute, Flow Logs | 0 | Planned extensions only | Not deployed |
 
 ### Address plan
@@ -66,12 +66,15 @@ Each private subnet has its own route table to support future per-AZ NAT or hybr
 ## Security model
 
 - No SSH (`22`) or RDP (`3389`) ingress exists.
+- The VPC default security group is managed explicitly with no ingress or egress rules.
 - The example application security group allows TCP/443 only within the VPC, in both directions. Real workloads should reference security groups where possible and narrow egress to actual destinations.
 - Public IP auto-assignment is disabled on all subnets. Public placement is therefore an explicit workload decision.
 - Private route tables have no Internet Gateway or NAT default route.
 - Default NACL behavior is retained deliberately; see [Network ACL strategy](docs/NETWORK_ACLS.md).
 - Terraform uses the ambient AWS credential chain. No keys, account IDs, or secrets belong in Git.
 - Required tags identify project, environment, management method, and repository; optional tags can add ownership or cost allocation.
+
+Three narrowly scoped Checkov exceptions preserve explicit portfolio requirements; see [security exceptions](docs/SECURITY_EXCEPTIONS.md) for their rationale and production recommendations.
 
 This project does not create IAM roles. For an approved deployment, use short-lived federation/OIDC and a reviewed least-privilege provisioning role. Separate planning from deployment approval and scope permissions to the required EC2 networking APIs.
 
@@ -83,6 +86,7 @@ This project does not create IAM roles. For an approved deployment, use short-li
 ├── docs/
 │   ├── HYBRID_VPN.md
 │   ├── NETWORK_ACLS.md
+│   ├── SECURITY_EXCEPTIONS.md
 │   ├── TEST_RESULTS.md
 │   └── TROUBLESHOOTING.md
 ├── modules/network/
