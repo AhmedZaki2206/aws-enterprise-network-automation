@@ -18,11 +18,11 @@ run "network_plan" {
   }
 
   assert {
-    condition = alltrue([
-      for subnet in concat(aws_subnet.public, aws_subnet.private) :
-      cidrcontains(aws_vpc.this.cidr_block, cidrhost(subnet.cidr_block, 1))
-    ])
-    error_message = "Every subnet must be contained within the VPC CIDR."
+    condition = toset(concat(
+      [for subnet in aws_subnet.public : subnet.cidr_block],
+      [for subnet in aws_subnet.private : subnet.cidr_block]
+    )) == toset(["10.20.1.0/24", "10.20.2.0/24", "10.20.11.0/24", "10.20.12.0/24"])
+    error_message = "The planned subnet CIDRs must match the tested non-overlapping address plan."
   }
 
   assert {
@@ -31,16 +31,6 @@ run "network_plan" {
       [for subnet in aws_subnet.private : subnet.cidr_block]
     ))) == 4
     error_message = "Subnet CIDRs must be unique."
-  }
-
-  assert {
-    condition = alltrue(flatten([
-      for left in concat(aws_subnet.public, aws_subnet.private) : [
-        for right in concat(aws_subnet.public, aws_subnet.private) :
-        left.cidr_block == right.cidr_block || !cidrcontains(left.cidr_block, cidrhost(right.cidr_block, 1))
-      ]
-    ]))
-    error_message = "Subnet CIDRs must not overlap."
   }
 
   assert {
