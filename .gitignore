@@ -1,0 +1,32 @@
+# Terraform working data and state
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+.terraform.lock.hcl
+
+# Variable files may contain sensitive values
+*.tfvars
+*.tfvars.json
+!terraform.tfvars.example
+
+# Credentials and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.aws/
+
+# Tool and editor output
+.tflint.d/
+.checkov/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+__pycache__/
+*.py[cod]
+
