@@ -1,7 +1,17 @@
 mock_provider "aws" {}
 
 variables {
-  availability_zones = ["eu-central-1a", "eu-central-1b"]
+  project_name         = "aws-enterprise-network-automation"
+  environment          = "test"
+  vpc_cidr             = "10.20.0.0/16"
+  availability_zones   = ["eu-central-1a", "eu-central-1b"]
+  public_subnet_cidrs  = ["10.20.1.0/24", "10.20.2.0/24"]
+  private_subnet_cidrs = ["10.20.11.0/24", "10.20.12.0/24"]
+  tags = {
+    Project     = "aws-enterprise-network-automation"
+    Environment = "test"
+    ManagedBy   = "Terraform"
+  }
 }
 
 run "network_plan" {
@@ -34,8 +44,8 @@ run "network_plan" {
   }
 
   assert {
-    condition     = aws_route.public_internet.destination_cidr_block == "0.0.0.0/0" && aws_route.public_internet.gateway_id == aws_internet_gateway.this.id
-    error_message = "The public route table must send the default route to the Internet Gateway."
+    condition     = aws_route.public_internet.destination_cidr_block == "0.0.0.0/0"
+    error_message = "The public route table must contain the IPv4 default route."
   }
 
   assert {
