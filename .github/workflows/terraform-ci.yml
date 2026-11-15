@@ -37,6 +37,10 @@ jobs:
       - name: Terraform validate
         run: terraform validate -no-color
 
+      - name: Initialize network module tests
+        working-directory: modules/network
+        run: terraform init -backend=false -input=false
+
       - name: Terraform native tests
         working-directory: modules/network
         run: terraform test -no-color
